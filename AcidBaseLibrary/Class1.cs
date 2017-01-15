@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Acid_Base_Library
+namespace AcidBaseLibrary
 {
     public class Class1
     {

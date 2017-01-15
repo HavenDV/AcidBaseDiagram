@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace Acid_Base_Library.Tests
+namespace AcidBaseLibrary.Tests
 {
     [TestFixture]
     public class UnitTest1
