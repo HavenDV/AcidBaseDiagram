@@ -7,8 +7,8 @@
     <ProjectGuid>{DA12F04E-09F4-4914-A5E8-C6C5659CE9E8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Acid_Base_Diagram</RootNamespace>
-    <AssemblyName>Acid-Base Diagram</AssemblyName>
+    <RootNamespace>AcidBaseDiagram</RootNamespace>
+    <AssemblyName>AcidBaseDiagram</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

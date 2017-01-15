@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcidBaseDiagram", "AcidBaseDiagram\AcidBaseDiagram.csproj", "{DA12F04E-09F4-4914-A5E8-C6C5659CE9E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcidBaseLibrary", "AcidBaseLibrary\AcidBaseLibrary.csproj", "{A42B7FC5-36A9-409D-8029-BCED8516E300}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcidBaseLibrary.Tests", "AcidBaseLibrary.Tests\AcidBaseLibrary.Tests.csproj", "{DE0CCE2C-FEE5-4EF3-A144-132639AD5ADB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA12F04E-09F4-4914-A5E8-C6C5659CE9E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA12F04E-09F4-4914-A5E8-C6C5659CE9E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA12F04E-09F4-4914-A5E8-C6C5659CE9E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA12F04E-09F4-4914-A5E8-C6C5659CE9E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A42B7FC5-36A9-409D-8029-BCED8516E300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A42B7FC5-36A9-409D-8029-BCED8516E300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A42B7FC5-36A9-409D-8029-BCED8516E300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A42B7FC5-36A9-409D-8029-BCED8516E300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0CCE2C-FEE5-4EF3-A144-132639AD5ADB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0CCE2C-FEE5-4EF3-A144-132639AD5ADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0CCE2C-FEE5-4EF3-A144-132639AD5ADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0CCE2C-FEE5-4EF3-A144-132639AD5ADB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
