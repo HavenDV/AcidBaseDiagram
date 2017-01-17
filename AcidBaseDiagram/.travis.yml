@@ -1,5 +1,0 @@
-language: csharp
-solution: AcidBaseDiagram.sln
-script:
-  - xbuild /p:Configuration=Release AcidBaseDiagram.sln
-  - mono ./packages/NUnit.ConsoleRunner.*/tools/nunit3-console.exe ./AcidBaseLibrary.Tests/bin/Release/AcidBaseLibrary.Tests.dll
