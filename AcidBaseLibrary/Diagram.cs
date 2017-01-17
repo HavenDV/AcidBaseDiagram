@@ -689,14 +689,19 @@ namespace AcidBaseLibrary
             return 24 * PCO2 / H;
         }
 
+        static public double BICandPCO2toH(double bic, double PCO2)
+        {
+            return (24 * PCO2 / bic);
+        }
+
         static public double PCO2andPHtoBIC(double PCO2, double pH)
         {
-            //return (K * PCO2 / Math.Exp((9 - pH) * 2.302585));
-            return (24 * PCO2 / Math.Exp((9 - pH) * 2.302585));
+            return PCO2andHtoBIC(PCO2, PHtoH(pH));
         }
 
         static public double BEandBICtoPCO2(double BE, double bic)
         {
+            var H = BEandBICtoH(BE, bic);
             return bic / (Math.Exp(BE * 0.167185679472339 + 0.104338308816056 - bic * 0.155265340525961)) / 24;
         }
 
@@ -712,7 +717,9 @@ namespace AcidBaseLibrary
 
         static public double BEandPHtoPCO2(double BE, double pH)
         {
-            return Math.Exp((9 - pH) * 2.302585) * ((BE - 13.772621 * pH + 124.577675) / 0.9287) / 24;
+            var bic = (BE - 13.772621*pH + 124.577675)/0.9287;
+            
+            return BICandHtoPCO2(bic, PHtoH(pH));
         }
 
         static public double BEandPHtobic(double BE, double pH)
@@ -722,24 +729,17 @@ namespace AcidBaseLibrary
 
         static public double BEandHtoPCO2(double BE, double H)
         {
-            if (H < 0.0)
-            {
-                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
-            }
-
-            return H * (BE / 0.9287 + 0.672 + 6.44058742673995 * Math.Log(H)) / 24;
+            return BICandHtoPCO2(BEandHtoBIC(BE, H), H);
         }
 
         static public double BICandPCO2toBE(double bic, double PCO2)
         {
-            var H = BICandPCO2toH(bic, PCO2);
-            return BICandHtoBE(bic, H);
+            return BICandHtoBE(bic, BICandPCO2toH(bic, PCO2));
         }
 
         static public double BICandPCO2toPH(double bic, double PCO2)
         {
-            var H = BICandPCO2toH(bic, PCO2);
-            return HtoPH(H);
+            return HtoPH(BICandPCO2toH(bic, PCO2));
         }
 
         static public double BICandPHtoBE(double bic, double pH)
@@ -749,7 +749,7 @@ namespace AcidBaseLibrary
 
         static public double BICandPHtoPCO2(double pH, double bic)
         {
-            return (Math.Exp((9 - pH) * 2.302585) * bic / 24);
+            return BICandHtoPCO2(bic, PHtoH(pH));
         }
 
         static public double BICandHtoBE(double bic, double H)
@@ -782,25 +782,9 @@ namespace AcidBaseLibrary
             return (Math.Exp((9 - pH) * 2.302585));
         }
 
-        static public double KtoPK(double K)
-        {
-            if (K < 0.0)
-            {
-                throw new ArgumentException($"{nameof(K)} only have values [0.0, +Inf]");
-            }
-
-            return (9 - Math.Log(K) / 2.302585);
-        }
-
-        static public double PKtoK(double pK)
-        {
-            return (Math.Exp((9 - pK) * 2.302585));
-        }																		// End Deriving Clinical Variable from data. 
-
-
         static public double PCO2andPHtoBE(double PCO2, double pH)
         {
-            return 0.9287 * (PCO2 * 24 / Math.Exp((9 - pH) * 2.302585)) + 13.772621 * pH - 124.5776754;
+            return BICandPHtoBE(PCO2andPHtoBIC(PCO2, pH), pH);
         }
 
         static public double PCO2andHtoBE(double PCO2, double H)
@@ -813,11 +797,6 @@ namespace AcidBaseLibrary
             return 22.2888 * PCO2 / H - 0.624086 - 5.9813759 * Math.Log(H);
         }
 
-        static public double BICandPCO2toH(double bic, double PCO2)
-        {
-            return (24 * PCO2 / bic);
-        }
-
         static public double BEandHtoBIC(double BE, double H)
         {
             if (H < 0.0)
@@ -825,7 +804,7 @@ namespace AcidBaseLibrary
                 throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
             }
 
-            return BE / 0.9287 + 6.44058742673995 * (Math.Log(H)) + 0.672;
+            return BE / 0.9287 + 6.44058742673995 * Math.Log(H) + 0.672;
         }
 
         static public double PCO2andBEtoBIC(double PCO2, double BE)
@@ -845,59 +824,46 @@ namespace AcidBaseLibrary
 
         static public double PCO2andBEtoH(double PCO2, double BE)
         {
-            /*
-            bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);             // bic approx using Grogono Equation
-            for (i = 0; i < 6; i++)
-            {                                               // iterative approximation
-                H = BICandPCO2toH();                                            // Henderson
-                bic = (bic + BEandHtoBIC()) / 2;                                // Sig-Anderson
-            }
-            return H;                                                           // return [H+]
-            */
             var bic = PCO2andBEtoBIC(PCO2, BE);
             return BICandPCO2toH(bic, PCO2);
         }
 
         static public double PCO2andBEtoPH(double PCO2, double BE)
         {
-            /*
-            var bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);             // bic approx using Grogono Equation   
-            var H = 0.0;
-            for (var ii = 0; ii < 6; ii++)
-            {                                           // iterative approximation
-                H = BICandPCO2toH(bic, PCO2);                                            // Henderson
-                bic = (bic + BEandHtoBIC(BE, H)) / 2;                                // Sig-Anderson
-            }
-            return (9 - Math.Log(H) / 2.302585);
-            //*/
             var H = PCO2andBEtoH(PCO2, BE);
-            return (9 - Math.Log(H) / 2.302585);
+            return HtoPH(H);
         }
 
 
         // ***** Methods for converting between plot location and clinical variable
+
+        // x-axis to PCO2
         static public double mxtoPCO2(double mx, double scale)
-        {                                               // x-axis to PCO2
+        {                                               
             return (mx / scale + 10);
         }
 
+        // PCO2 to x-axis
         static public double PCO2toxx(double PCO2, double scale)
-        {                                               // PCO2 to x-axis
+        {                                               
             return ((PCO2 - 10) * scale);
         }
 
+        // PCO2 to x-axis
         static public double PCO2kPatoxx(double PCO2, double scale)
-        {                                               // PCO2 to x-axis
+        {                                               
             return ((PCO2 - 1.38) * scale / 0.138);
         }
 
+        // y-axis to BE
         static public double mytoBE(double my, double scale)
-        {                                                   // y-axis to BE
+        {                                                   
             return (30 - my / scale);
         }
 
+        // BE to y-axis
         static public double BEtoyy(double BE, double scale)
-        {                                                   // BE to y-axis
+        {                                                   
             return ((30 - BE) * scale);
         }
 
