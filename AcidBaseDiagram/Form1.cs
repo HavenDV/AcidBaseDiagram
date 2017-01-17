@@ -12,10 +12,15 @@ namespace AcidBaseDiagram
 {
     public partial class Form1 : Form
     {
+        static public Bitmap GetBitmap()
+        {
+            return new Bitmap(400, 400);
+        }
+
         public Form1()
         {
             InitializeComponent();
-            pictureBox.Image = AcidBaseLibrary.Diagram.GetBitmap();
+            pictureBox.Image = GetBitmap();
         }
     }
 }

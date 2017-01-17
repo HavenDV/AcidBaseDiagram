@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 
 /*
 
@@ -318,14 +314,7 @@ using System.Text;
 
 
 //***** Conversions Equations.  Note: only some of these have been tested.
-	function PCO2andBEtoBIC() {
-		bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);				// bic approx using Grogono Equation
-		for (ii=0;ii<6;ii++)  {											// iterative approximation
-			H = BICandPCO2toH();											// Henderson
-			bic = (bic + BEandHtoBIC())/2;								// Sig-Anderson
-		}
-		return bic;														// return bic
-	}
+
 	
 	function PCO2andBEtoPH() {
 		bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);				// bic approx using Grogono Equation   
@@ -385,20 +374,12 @@ using System.Text;
 		return H * (BE /  0.9287 + 0.672 +  6.44058742673995  * Math.log(H) ) / 24;
 	}
 	
-	function BEandHtoBIC() {
-		return BE/ 0.9287 + 6.44058742673995 * (Math.log(H)) + 0.672;
-	}
-	
 	function BICandPCO2toBE() {
 		return 0.9287 *bic - 0.624086  - 5.9813759  * Math.log(PCO2 * 24 / bic);
 	}
 	
 	function BICandPCO2toPH() {
 		return 9 - Math.log(PCO2 * 24 / bic) / 2.302585;
-	}
-	
-	function BICandPCO2toH() {
-		return (24*PCO2/bic);
 	}
 	
 	function BICandPHtoBE() {
@@ -822,6 +803,31 @@ namespace AcidBaseLibrary
 {
     public class Diagram
     {
+        static public double BICandPCO2toH(double bic, double PCO2)
+        {
+            return (24 * PCO2 / bic);
+        }
+
+        static public double BEandHtoBIC(double BE, double H)
+        {
+            return BE / 0.9287 + 6.44058742673995 * (Math.Log(H)) + 0.672;
+        }
+
+        static public double PCO2andBEtoBIC(double PCO2, double BE)
+        {
+            // bic approx using Grogono Equation
+            var bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);
+
+            // iterative approximation
+            for (var i = 0; i < 6; ++i)
+            {                                           
+                var H = BICandPCO2toH(bic, PCO2);     // Henderson
+                bic = (bic + BEandHtoBIC(BE, H)) / 2; // Sig-Anderson
+            }
+
+            return bic;
+        }
+
         static public Tuple<double, double> GetData(double ph, double pco2)
         {
             if (ph < 6.43 || ph > 8.26)
@@ -835,11 +841,6 @@ namespace AcidBaseLibrary
             }
 
             return new Tuple<double, double>(0.0, 24.0);
-        }
-
-        static public Bitmap GetBitmap()
-        {
-            return new Bitmap(400, 400);
         }
     }
 }
