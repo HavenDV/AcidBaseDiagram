@@ -313,138 +313,17 @@
 	severityBreak [6] = 30;												// Severe
 
 
-//***** Conversions Equations.  Note: only some of these have been tested.
 
-	
-	function PCO2andBEtoPH() {
-		bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);				// bic approx using Grogono Equation   
-		for (ii=0;ii<6;ii++)  {											// iterative approximation
-			H = BICandPCO2toH();											// Henderson
-			bic = (bic + BEandHtoBIC())/2;								// Sig-Anderson
-		}
-		return (9-Math.log(H) / 2.302585);								// return pH
-	}
-	
-	function PCO2andBEtoH() {
-		bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);				// bic approx using Grogono Equation
-		for (i=0;i<6;i++)  {												// iterative approximation
-			H = BICandPCO2toH();											// Henderson
-			bic = (bic + BEandHtoBIC())/2;								// Sig-Anderson
-		}
-		return H;															// return [H+]
-	}
-
-	function PCO2andPHtoBE() {
-		return 0.9287 * (PCO2 * 24 / Math.exp((9-pH)*2.302585)) + 13.772621 * pH -124.5776754;
-	}
-	
-	function PCO2andPHtoBIC() {
-		return (K*PCO2/Math.exp((9-pH)*2.302585));
-	}
-	
-	function PCO2andHtoBE() {
-		return 22.2888 *PCO2 / H - 0.624086  - 5.9813759  * Math.log(H);
-	}
-	
-	function PCO2andHtoBIC() {
-		return (K*PCO2/H);
-	}
-	
-	function BEandBICtoPCO2() {
-		return bic/(Math.exp(BE*0.167185679472339 +0.104338308816056 - bic*0.155265340525961))/24;
-	}
-	
-	function BEandBICtoPH() {
-		return BE/13.772621 + 9.0453135536 - bic / 14.83;
-	}
-	
-	function BEandBICtoH() {
-		return Math.exp(bic *0.155265340525961 -BE*0.167185679472339 - 0.104338308815997);
-	}
-	
-	function BEandPHtoPCO2() {
-		return Math.exp((9-pH)*2.302585) * ((BE -13.772621 * pH +124.577675)/0.9287) / 24;
-	}
-	
-	function BEandPHtobic() {
-		return BE/0.9287 - 14.83 * pH +134.142;
-	}
-	
-	function BEandHtoPCO2() {
-		return H * (BE /  0.9287 + 0.672 +  6.44058742673995  * Math.log(H) ) / 24;
-	}
-	
-	function BICandPCO2toBE() {
-		return 0.9287 *bic - 0.624086  - 5.9813759  * Math.log(PCO2 * 24 / bic);
-	}
-	
-	function BICandPCO2toPH() {
-		return 9 - Math.log(PCO2 * 24 / bic) / 2.302585;
-	}
-	
-	function BICandPHtoBE() {
-		return 0.9287 * bic  +  13.772621 * pH -124.5776754;
-	}
-	
-	function BICandPHtoPCO2() {
-		return (Math.exp((9-pH)*2.302585) * bic / 24);
-	}
-	
-	function BICandHtoBE() {
-		return 0.9287 *bic - 0.624086  - 5.9813759  * Math.log(H);
-	}
-	
-	function BICandHtoPCO2() {
-		return (H * bic / 24);
-	}
-	
-	function HtoPH() {
-		return (9-Math.log(H) / 2.302585);
-	}
-	
-	function PHtoH() {
-		return (Math.exp((9-pH)*2.302585));
-	}
-	
-	function KtoPK() {
-		return (9-Math.log(K) / 2.302585);
-	}
-	
-	function PKtoK() {
-		return (Math.exp((9-pK)*2.302585));
-	}																		// End Deriving Clinical Variable from data. 
-
-
-// ***** Methods for converting between plot location and clinical variable
-	function mxtoPCO2() {												// x-axis to PCO2
-		return (mx/scale+10);
-	}
-	
-	function PCO2toxx() {												// PCO2 to x-axis
-		return ((PCO2-10) * scale);
-	}
-	
-	function PCO2kPatoxx() {												// PCO2 to x-axis
-		return ((PCO2-1.38) * scale /0.138);
-	}
-	
-	function mytoBE() {													// y-axis to BE
-		return (30 - my/scale);
-	}
-	
-	function BEtoyy() {													// BE to y-axis
-		return ((30 - BE) * scale);  
-	}
 	
 // ***** Draw Isopleths on Graph
-function drawIsopleths() {
+static public double drawIsopleths() {
 	drawPHisopleths();													// pH Isopleths
 	drawBicarbisopleths();												// Bicarb Isopleths
 	drawBEisopleths();													// Base Excess Isopleths
 	drawPCO2isopleths();													// CO2 Isoplehts
 }
 
-function drawBEisopleths()	{
+static public double drawBEisopleths()	{
 	context.fillStyle = BEisopleths;									// Color
 	context.strokeStyle = BEisopleths;
 	context.font = graphFont;											// Font Style
@@ -469,7 +348,7 @@ function drawBEisopleths()	{
 }
 
 
-function drawPCO2isopleths()	{
+static public double drawPCO2isopleths()	{
 	context.fillStyle = PCO2isopleths;
 	context.strokeStyle = PCO2isopleths;
 	context.font = graphFont;											// Color
@@ -512,7 +391,7 @@ function drawPCO2isopleths()	{
 	}
 }
 
-function drawPHisopleths()	{
+static public double drawPHisopleths()	{
 	for (i = 70; i < 78; i++) {											// pH Isopleths
 		pH = i / 10;														// 7.0, 7.1, 7.2, etc
 		pHdisp = pH.toFixed(1);											// Ensures 7.0 instead of just 7
@@ -553,7 +432,7 @@ function drawPHisopleths()	{
 	context.fillText("pH", x2-scale*4, y2 + 2.5 * scale +2);		// Print "pH"
 }
 
-function drawBicarbisopleths()	{
+static public double drawBicarbisopleths()	{
 	for (j = 8; j > 0; j--)  {											// Eight steps across screen
 		for (i = 1; i < 10; i++) {										// Nine Bicarb Isopleths
 			PCO2 = j * 10 + 2;											// 10, 20, 30, 40, etc
@@ -611,7 +490,7 @@ function drawBicarbisopleths()	{
 	context.fillText("Bic", x2, y2);									// Print "Bic"
 }
 
-function changeColors()	{												// Color Changes Beside the Graph
+static public double changeColors()	{												// Color Changes Beside the Graph
 
 	if (PCO2Change>3)	 {													// PCO2 changes Alkalosis and Acidosis
 		document.getElementById('RAc').style.color = AcidText;
@@ -642,7 +521,7 @@ function changeColors()	{												// Color Changes Beside the Graph
 }
 
 // ***** Return 'true' if the point 'pt' is inside the polygon 'main'.
-function isPointInPoly(main, pt) {
+static public double isPointInPoly(main, pt) {
     for(var c = false, i = -1, l = main.length, j = l - 1; ++i < l; j = i)
         ((main[i].y <= pt.y && pt.y < main[j].y) || (main[j].y <= pt.y && pt.y < main[i].y))
         && (pt.x < (main[j].x - main[i].x) * (pt.y - main[i].y) / (main[j].y - main[i].y) + main[i].x)
@@ -651,7 +530,7 @@ function isPointInPoly(main, pt) {
 }
 
 // ***** File Polygons.
-function fillPolygon(main, fillCol, strokeCol)
+static public double fillPolygon(main, fillCol, strokeCol)
 {
 	context.restore();													// **** Added to achieve Uniform Radial Brightness
 	context.save();														// **** Added to achieve Uniform Radial Brightness
@@ -681,7 +560,7 @@ function fillPolygon(main, fillCol, strokeCol)
 
 //	***** Mouse move 'event' gives x,y position.
 //	Coordinates in rectangle and finds polygon that encloses the position, if any.
-function doMouse(event) {
+static public double doMouse(event) {
 	var rect = canvas.getBoundingClientRect();
 	mx = event.pageX - rect.left;
 	my = event.pageY - rect.top;
@@ -783,7 +662,7 @@ function doMouse(event) {
 }
   
 // Display the polygons and wait for mouse events.  
-function displayPolygons() {
+static public double displayPolygons() {
 	canvas = document.getElementById('main');
 	context = canvas.getContext('2d');
 	for (p = 0; p < polygons.length; p++) {
@@ -803,6 +682,137 @@ namespace AcidBaseLibrary
 {
     public class Diagram
     {
+        //***** Conversions Equations.  Note: only some of these have been tested.
+        static public double PCO2andHtoBIC(double PCO2, double H)
+        {
+            //return (K * PCO2 / H);
+            return 24 * PCO2 / H;
+        }
+
+        static public double PCO2andPHtoBIC(double PCO2, double pH)
+        {
+            //return (K * PCO2 / Math.Exp((9 - pH) * 2.302585));
+            return (24 * PCO2 / Math.Exp((9 - pH) * 2.302585));
+        }
+
+        static public double BEandBICtoPCO2(double BE, double bic)
+        {
+            return bic / (Math.Exp(BE * 0.167185679472339 + 0.104338308816056 - bic * 0.155265340525961)) / 24;
+        }
+
+        static public double BEandBICtoPH(double BE, double bic)
+        {
+            return BE / 13.772621 + 9.0453135536 - bic / 14.83;
+        }
+
+        static public double BEandBICtoH(double BE, double bic)
+        {
+            return Math.Exp(bic * 0.155265340525961 - BE * 0.167185679472339 - 0.104338308815997);
+        }
+
+        static public double BEandPHtoPCO2(double BE, double pH)
+        {
+            return Math.Exp((9 - pH) * 2.302585) * ((BE - 13.772621 * pH + 124.577675) / 0.9287) / 24;
+        }
+
+        static public double BEandPHtobic(double BE, double pH)
+        {
+            return BE / 0.9287 - 14.83 * pH + 134.142;
+        }
+
+        static public double BEandHtoPCO2(double BE, double H)
+        {
+            if (H < 0.0)
+            {
+                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
+            }
+
+            return H * (BE / 0.9287 + 0.672 + 6.44058742673995 * Math.Log(H)) / 24;
+        }
+
+        static public double BICandPCO2toBE(double bic, double PCO2)
+        {
+            var H = BICandPCO2toH(bic, PCO2);
+            return BICandHtoBE(bic, H);
+        }
+
+        static public double BICandPCO2toPH(double bic, double PCO2)
+        {
+            var H = BICandPCO2toH(bic, PCO2);
+            return HtoPH(H);
+        }
+
+        static public double BICandPHtoBE(double bic, double pH)
+        {
+            return 0.9287 * bic + 13.772621 * pH - 124.5776754;
+        }
+
+        static public double BICandPHtoPCO2(double pH, double bic)
+        {
+            return (Math.Exp((9 - pH) * 2.302585) * bic / 24);
+        }
+
+        static public double BICandHtoBE(double bic, double H)
+        {
+            if (H < 0.0)
+            {
+                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
+            }
+
+            return 0.9287 * bic - 0.624086 - 5.9813759 * Math.Log(H);
+        }
+
+        static public double BICandHtoPCO2(double bic, double H)
+        {
+            return (H * bic / 24);
+        }
+
+        static public double HtoPH(double H)
+        {
+            if (H < 0.0)
+            {
+                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
+            }
+
+            return (9 - Math.Log(H) / 2.302585);
+        }
+
+        static public double PHtoH(double pH)
+        {
+            return (Math.Exp((9 - pH) * 2.302585));
+        }
+
+        static public double KtoPK(double K)
+        {
+            if (K < 0.0)
+            {
+                throw new ArgumentException($"{nameof(K)} only have values [0.0, +Inf]");
+            }
+
+            return (9 - Math.Log(K) / 2.302585);
+        }
+
+        static public double PKtoK(double pK)
+        {
+            return (Math.Exp((9 - pK) * 2.302585));
+        }																		// End Deriving Clinical Variable from data. 
+
+
+        static public double PCO2andPHtoBE(double PCO2, double pH)
+        {
+            return 0.9287 * (PCO2 * 24 / Math.Exp((9 - pH) * 2.302585)) + 13.772621 * pH - 124.5776754;
+        }
+
+        static public double PCO2andHtoBE(double PCO2, double H)
+        {
+            if (H < 0.0)
+            {
+                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
+            }
+
+            return 22.2888 * PCO2 / H - 0.624086 - 5.9813759 * Math.Log(H);
+        }
+
         static public double BICandPCO2toH(double bic, double PCO2)
         {
             return (24 * PCO2 / bic);
@@ -810,6 +820,11 @@ namespace AcidBaseLibrary
 
         static public double BEandHtoBIC(double BE, double H)
         {
+            if (H < 0.0)
+            {
+                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
+            }
+
             return BE / 0.9287 + 6.44058742673995 * (Math.Log(H)) + 0.672;
         }
 
@@ -822,25 +837,85 @@ namespace AcidBaseLibrary
             for (var i = 0; i < 6; ++i)
             {                                           
                 var H = BICandPCO2toH(bic, PCO2);     // Henderson
-                bic = (bic + BEandHtoBIC(BE, H)) / 2; // Sig-Anderson
+                //bic = (bic + BEandHtoBIC(BE, H)) / 2; // Sig-Anderson
             }
 
             return bic;
         }
 
-        static public Tuple<double, double> GetData(double ph, double pco2)
+        static public double PCO2andBEtoH(double PCO2, double BE)
         {
-            if (ph < 6.43 || ph > 8.26)
+            /*
+            bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);             // bic approx using Grogono Equation
+            for (i = 0; i < 6; i++)
+            {                                               // iterative approximation
+                H = BICandPCO2toH();                                            // Henderson
+                bic = (bic + BEandHtoBIC()) / 2;                                // Sig-Anderson
+            }
+            return H;                                                           // return [H+]
+            */
+            var bic = PCO2andBEtoBIC(PCO2, BE);
+            return BICandPCO2toH(bic, PCO2);
+        }
+
+        static public double PCO2andBEtoPH(double PCO2, double BE)
+        {
+            /*
+            var bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);             // bic approx using Grogono Equation   
+            var H = 0.0;
+            for (var ii = 0; ii < 6; ii++)
+            {                                           // iterative approximation
+                H = BICandPCO2toH(bic, PCO2);                                            // Henderson
+                bic = (bic + BEandHtoBIC(BE, H)) / 2;                                // Sig-Anderson
+            }
+            return (9 - Math.Log(H) / 2.302585);
+            //*/
+            var H = PCO2andBEtoH(PCO2, BE);
+            return (9 - Math.Log(H) / 2.302585);
+        }
+
+
+        // ***** Methods for converting between plot location and clinical variable
+        static public double mxtoPCO2(double mx, double scale)
+        {                                               // x-axis to PCO2
+            return (mx / scale + 10);
+        }
+
+        static public double PCO2toxx(double PCO2, double scale)
+        {                                               // PCO2 to x-axis
+            return ((PCO2 - 10) * scale);
+        }
+
+        static public double PCO2kPatoxx(double PCO2, double scale)
+        {                                               // PCO2 to x-axis
+            return ((PCO2 - 1.38) * scale / 0.138);
+        }
+
+        static public double mytoBE(double my, double scale)
+        {                                                   // y-axis to BE
+            return (30 - my / scale);
+        }
+
+        static public double BEtoyy(double BE, double scale)
+        {                                                   // BE to y-axis
+            return ((30 - BE) * scale);
+        }
+
+        static public Tuple<double, double> GetData(double pH, double PCO2)
+        {
+            if (pH < 1.43 || pH > 8.26)
             {
-                throw new ArgumentException($"{nameof(ph)} only have values [6.43, 8.26]");
+                throw new ArgumentException($"{nameof(pH)} only have values [6.43, 8.26]");
             }
 
-            if (pco2 < 10.0 || pco2 > 100.0)
+            if (PCO2 < 10.0 || PCO2 > 100.0)
             {
-                throw new ArgumentException($"{nameof(pco2)} only have values [10.0, 100.0]");
+                throw new ArgumentException($"{nameof(PCO2)} only have values [10.0, 100.0]");
             }
 
-            return new Tuple<double, double>(0.0, 24.0);
+            var BE = PCO2andPHtoBE(PCO2, pH);
+            var bic = BEandPHtobic(BE, pH);
+            return new Tuple<double, double>(BE, bic);
         }
     }
 }
