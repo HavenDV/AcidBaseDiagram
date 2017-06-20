@@ -694,15 +694,9 @@ namespace AcidBaseLibrary
             return (24 * PCO2 / bic);
         }
 
-        static public double PCO2andPHtoBIC(double PCO2, double pH)
+        static public double BICandHtoPCO2(double bic, double H)
         {
-            return PCO2andHtoBIC(PCO2, PHtoH(pH));
-        }
-
-        static public double BEandBICtoPCO2(double BE, double bic)
-        {
-            var H = BEandBICtoH(BE, bic);
-            return bic / (Math.Exp(BE * 0.167185679472339 + 0.104338308816056 - bic * 0.155265340525961)) / 24;
+            return (H * bic / 24);
         }
 
         static public double BEandBICtoPH(double BE, double bic)
@@ -710,21 +704,34 @@ namespace AcidBaseLibrary
             return BE / 13.772621 + 9.0453135536 - bic / 14.83;
         }
 
+        static public double BEandPHtobic(double BE, double pH)
+        {
+            return BE / 0.9287 - 14.83 * pH + 134.142;
+        }
+
+        static public double BICandPHtoBE(double bic, double pH)
+        {
+            return 0.9287 * bic + 13.772621 * pH - 124.5776754;
+        }
+
+        static public double PCO2andPHtoBIC(double PCO2, double pH)
+        {
+            return PCO2andHtoBIC(PCO2, PHtoH(pH));
+        }
+
+        static public double BEandBICtoPCO2(double BE, double bic)
+        {
+            return BEandHtoPCO2(BE, BEandBICtoH(BE, bic));
+        }
+
         static public double BEandBICtoH(double BE, double bic)
         {
-            return Math.Exp(bic * 0.155265340525961 - BE * 0.167185679472339 - 0.104338308815997);
+            return PHtoH(BEandBICtoPH(BE, bic));
         }
 
         static public double BEandPHtoPCO2(double BE, double pH)
         {
-            var bic = (BE - 13.772621*pH + 124.577675)/0.9287;
-            
-            return BICandHtoPCO2(bic, PHtoH(pH));
-        }
-
-        static public double BEandPHtobic(double BE, double pH)
-        {
-            return BE / 0.9287 - 14.83 * pH + 134.142;
+            return BICandPHtoPCO2(BEandPHtobic(BE, pH), pH);
         }
 
         static public double BEandHtoPCO2(double BE, double H)
@@ -742,11 +749,6 @@ namespace AcidBaseLibrary
             return HtoPH(BICandPCO2toH(bic, PCO2));
         }
 
-        static public double BICandPHtoBE(double bic, double pH)
-        {
-            return 0.9287 * bic + 13.772621 * pH - 124.5776754;
-        }
-
         static public double BICandPHtoPCO2(double pH, double bic)
         {
             return BICandHtoPCO2(bic, PHtoH(pH));
@@ -754,21 +756,12 @@ namespace AcidBaseLibrary
 
         static public double BICandHtoBE(double bic, double H)
         {
-            if (H < 0.0)
-            {
-                throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
-            }
-
-            return 0.9287 * bic - 0.624086 - 5.9813759 * Math.Log(H);
-        }
-
-        static public double BICandHtoPCO2(double bic, double H)
-        {
-            return (H * bic / 24);
+            return BICandPHtoBE(bic, HtoPH(H));
         }
 
         static public double HtoPH(double H)
         {
+            H = Math.Max(H, 0.0);
             if (H < 0.0)
             {
                 throw new ArgumentException($"{nameof(H)} only have values [0.0, +Inf]");
@@ -811,11 +804,14 @@ namespace AcidBaseLibrary
         {
             // bic approx using Grogono Equation
             var bic = (BE + 30.17) / (0.94292 + 12.569 / PCO2);
-
             // iterative approximation
             for (var i = 0; i < 6; ++i)
-            {                                           
-                var H = BICandPCO2toH(bic, PCO2);     // Henderson
+            {
+                var pH = BICandPCO2toPH(bic, PCO2);
+                BE = 0.9287 * bic + 13.77 * pH - 124.58;
+                bic = BE / 0.9287 - 14.83 * pH + 134.142;
+                
+                //var H = BICandPCO2toH(bic, PCO2);     // Henderson
                 //bic = (bic + BEandHtoBIC(BE, H)) / 2; // Sig-Anderson
             }
 
@@ -824,64 +820,71 @@ namespace AcidBaseLibrary
 
         static public double PCO2andBEtoH(double PCO2, double BE)
         {
-            var bic = PCO2andBEtoBIC(PCO2, BE);
-            return BICandPCO2toH(bic, PCO2);
+            return BICandPCO2toH(PCO2andBEtoBIC(PCO2, BE), PCO2);
         }
 
         static public double PCO2andBEtoPH(double PCO2, double BE)
         {
-            var H = PCO2andBEtoH(PCO2, BE);
-            return HtoPH(H);
+            return HtoPH(PCO2andBEtoH(PCO2, BE));
         }
+    }
 
+    public class Parameters
+    {
+        public double pH { get; private set; }
+        public double PCO2 { get; private set; }
+        public double SBE { get; private set; }
+        public double Bic { get; private set; }
+        public double H { get; private set; }
 
-        // ***** Methods for converting between plot location and clinical variable
-
-        // x-axis to PCO2
-        static public double mxtoPCO2(double mx, double scale)
-        {                                               
-            return (mx / scale + 10);
-        }
-
-        // PCO2 to x-axis
-        static public double PCO2toxx(double PCO2, double scale)
-        {                                               
-            return ((PCO2 - 10) * scale);
-        }
-
-        // PCO2 to x-axis
-        static public double PCO2kPatoxx(double PCO2, double scale)
-        {                                               
-            return ((PCO2 - 1.38) * scale / 0.138);
-        }
-
-        // y-axis to BE
-        static public double mytoBE(double my, double scale)
-        {                                                   
-            return (30 - my / scale);
-        }
-
-        // BE to y-axis
-        static public double BEtoyy(double BE, double scale)
-        {                                                   
-            return ((30 - BE) * scale);
-        }
-
-        static public Tuple<double, double> GetData(double pH, double PCO2)
+        public static Parameters FromPCO2AndPH(double PCO2, double pH)
         {
-            if (pH < 1.43 || pH > 8.26)
-            {
-                throw new ArgumentException($"{nameof(pH)} only have values [6.43, 8.26]");
-            }
+            var parameters = new Parameters();
 
-            if (PCO2 < 10.0 || PCO2 > 100.0)
-            {
-                throw new ArgumentException($"{nameof(PCO2)} only have values [10.0, 100.0]");
-            }
+            //throw new ArgumentException($"{nameof(pH)} only have values [6.43, 8.26]");
+            parameters.PCO2 = PCO2;
+            parameters.pH = pH;
+            parameters.Bic = Diagram.PCO2andPHtoBIC(PCO2, pH);
+            parameters.H = Diagram.PHtoH(pH);
+            parameters.SBE = Diagram.PCO2andPHtoBE(PCO2, pH);
+            parameters.SBE = 0.02786 * PCO2 * Math.Pow(10, pH - 6.1) + 13.77 * pH - 124.58;
 
-            var BE = PCO2andPHtoBE(PCO2, pH);
-            var bic = BEandPHtobic(BE, pH);
-            return new Tuple<double, double>(BE, bic);
+            return parameters;
+        }
+
+        public static Parameters FromPCO2AndSBE(double PCO2, double sbe)
+        {
+            var parameters = new Parameters();
+
+            parameters.PCO2 = PCO2;
+            parameters.SBE = sbe;
+            parameters.pH = Diagram.PCO2andBEtoPH(PCO2, sbe);
+            parameters.Bic = Diagram.PCO2andBEtoBIC(PCO2, sbe);
+            parameters.H = Diagram.PHtoH(parameters.pH);
+
+            return parameters;
+        }
+
+        static public Parameters FromXY(int x, int y, double scale = 1.0)
+        {
+            var PCO2 = x / scale + 10;
+            var SBE = (30 - y / scale);
+
+            return FromPCO2AndSBE(PCO2, SBE);
+        }
+
+        public int ToX(int width, double minPCO2 = 10.0, double maxPCO2 = 100.0)
+        {
+            var rangePCO2 = maxPCO2 - minPCO2;
+            var scale = width / rangePCO2;
+            return (int)((PCO2 - minPCO2) * scale);
+        }
+
+        public int ToY(int height, double minSBE = -30.0, double maxSBE = 30.0)
+        {
+            var rangeSBE = maxSBE - minSBE;
+            var scale = height/rangeSBE;
+            return height - (int)((SBE - minSBE) * scale) + 1;
         }
     }
 }
