@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace AcidBaseLibrary.Tests
 {
     [TestFixture]
-    public class Diagram_Tests
+    public class DiagramTests
     {
         public void InRange(double min, double max, double value, string message)
         {
